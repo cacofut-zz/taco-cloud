@@ -4,10 +4,7 @@ package br.com.cacodev.domain.model;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-/**
- *
- * @author cristianoca
- */
+
 @Data
 @RequiredArgsConstructor
 public class Ingredient {

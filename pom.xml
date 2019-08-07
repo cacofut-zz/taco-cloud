@@ -22,12 +22,12 @@
 	</properties>
 
 	<dependencies>
-		<!-- tag::thymeleaf[] -->
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
-		<!-- end::thymeleaf[] -->
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<!-- <scope>compileOnly</scope> -->
+			<scope>compileOnly</scope>
 		</dependency>
 	</dependencies>
 
