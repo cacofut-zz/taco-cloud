@@ -23,12 +23,21 @@ public class JdbcIngredientRepository implements IngredientRepository{
         this.jdbc = jdbc;
     }
     
+    /**
+     * 
+     * @return 
+     */
     @Override
     public Iterable<Ingredient> findAll() {
         return jdbc.query("select id, name, type from Ingredient", 
             this::mapRowToIngredient);        
     }
 
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     @Override
     public Ingredient findOne(String id) {
         return jdbc.queryForObject("select id, name, type from Ingredient where id=?", 
@@ -42,6 +51,11 @@ public class JdbcIngredientRepository implements IngredientRepository{
             }, id);
     }
 
+    /**
+     * 
+     * @param ingredient
+     * @return 
+     */
     @Override
     public Ingredient save(Ingredient ingredient) {
         jdbc.update("insert into Ingredient(id, name, type)values(?, ?, ?)", 

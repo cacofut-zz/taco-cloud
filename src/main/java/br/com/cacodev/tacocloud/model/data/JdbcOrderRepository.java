@@ -6,7 +6,10 @@
 package br.com.cacodev.tacocloud.model.data;
 
 import br.com.cacodev.tacocloud.model.entity.Order;
+import br.com.cacodev.tacocloud.model.entity.Taco;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Date;
+import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
@@ -22,7 +25,7 @@ public class JdbcOrderRepository implements OrderRepository{
     
     public JdbcOrderRepository(JdbcTemplate jdbc){
         this.orderInserter = new SimpleJdbcInsert(jdbc)
-            .withSchemaName("Taco_Order")
+            .withTableName("Taco_Order")
             .usingGeneratedKeyColumns("id");
         
         this.orderTacoInserter = new SimpleJdbcInsert(jdbc)
@@ -33,9 +36,33 @@ public class JdbcOrderRepository implements OrderRepository{
     
     @Override
     public Order save(Order order) {
+        order.setPlacedAt(new Date());
+        
         return null;
     }
     
+    /**
+     * 
+     * @param order
+     * @return 
+     */
+    private long saveOrderDetails(Order order){
+        @SuppressWarnings("unchecked")
+        Map<String, Object> values = 
+            objectMapper.convertValue(order, Map.class);
+        values.put("placedAt", order.getPlacedAt());
+        
+        long orderId = 
+            orderInserter
+                .executeAndReturnKey(values)
+                .longValue();
+        return orderId;
+        
+    }
+    
+    private void saveTacoToOrder(Taco taco, long orderId){
+        
+    }
     
     
 }
