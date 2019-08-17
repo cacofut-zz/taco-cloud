@@ -5,18 +5,17 @@
  */
 package br.com.cacodev.tacocloud.model.data;
 
-import br.com.cacodev.tacocloud.model.entity.Ingredient;
-import br.com.cacodev.tacocloud.model.entity.Taco;
-import java.sql.Types;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+
+import br.com.cacodev.tacocloud.model.entity.Ingredient;
+import br.com.cacodev.tacocloud.model.entity.Taco;
 
 /**
  *
@@ -24,12 +23,15 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class JdbcTacoRepository implements TacoRepository{
-    
-    private JdbcTemplate jdbc;
+   
+   
+    private SimpleJdbcInsert tacoInserter;
 
     @Autowired
     public JdbcTacoRepository(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
+        this.tacoInserter = new SimpleJdbcInsert(jdbc)
+    		.withTableName("Taco")
+    		.usingGeneratedKeyColumns("id");
     }   
     
     @Override
@@ -39,7 +41,7 @@ public class JdbcTacoRepository implements TacoRepository{
         for (Ingredient ingredient : taco.getIngredients()) {
             saveIngredientToTaco(ingredient, tacoId);
         }
-        return null;
+        return taco;
     }
     
     /**
@@ -48,22 +50,16 @@ public class JdbcTacoRepository implements TacoRepository{
      * @return 
      */
     private long saveTacoInfo(Taco taco){
+    	Map<String, Object> values = new HashMap<>();
         taco.setCreatedAt(new Date());
-        String sql = "insert into Taco (name, createdAt) values (?, ?)";
-                
-        PreparedStatementCreatorFactory pscf = new PreparedStatementCreatorFactory( 
-            sql, Types.VARCHAR, Types.TIMESTAMP);
-        
-        PreparedStatementCreator psc = pscf.newPreparedStatementCreator( 
-            Arrays.asList(
-                taco.getName(), 
-                taco.getCreatedAt().getTime()
-            )
-        );
-        
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(psc, keyHolder);        
-        return keyHolder.getKey().longValue();
+        values.put("name", taco.getName());
+        values.put("createdAt", taco.getCreatedAt());
+
+        long orderId = 
+    		tacoInserter
+                .executeAndReturnKey(values)
+                .longValue();
+        return orderId;
     }
     
     /**
@@ -72,7 +68,9 @@ public class JdbcTacoRepository implements TacoRepository{
      * @param tacoId 
      */
     private void saveIngredientToTaco(Ingredient ingredient, long tacoId){
-        String sql = "insert into Taco_Ingredients(taco, ingredient)values(?,?)";
-        jdbc.update(sql, tacoId, ingredient.getId());
+    	Map<String, Object> values = new HashMap<>();
+        values.put("taco", tacoId);
+        values.put("ingredient", ingredient.getId());
+        tacoInserter.execute(values);
     }
 }
