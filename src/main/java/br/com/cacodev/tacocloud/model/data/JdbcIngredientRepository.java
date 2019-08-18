@@ -39,7 +39,7 @@ public class JdbcIngredientRepository implements IngredientRepository{
      * @return 
      */
     @Override
-    public Ingredient findOne(String id) {
+    public Ingredient findById(String id) {
         return jdbc.queryForObject("select id, name, type from Ingredient where id=?", 
             new RowMapper<Ingredient>(){
                 public Ingredient mapRow(ResultSet rs, int rowNum) throws SQLException{
